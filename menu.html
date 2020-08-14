@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Whac-a-mole</title>
+    <script>
+        var board = document.createElement("div");
+        var table = document.createElement("table");
+        function setBoard() {
+            var easyBoardSett = 3;
+            var mediumBoardSett = 5;
+            var hardBoardSett = 10;
+            board.setAttribute("id", "boardContainer");
+            table.style.width = "100%";
+            table.style.height = "100%";
+            table.setAttribute("id", "boardGame");
+            board.appendChild(table);
+            document.body.appendChild(board);
+            switch (parseInt(choices[0])) {
+                case 1:
+                    for (var i = 0; i < easyBoardSett; i++) {
+                        var row = document.createElement("tr");
+                        for (var j = 0; j < easyBoardSett; j++) {
+                            var cell = document.createElement("td");
+                            cell.setAttribute("class", "boardCells");
+                            cell.style.backgroundColor = setGraphics(i, j);
+                            cell.addEventListener("click", addFailCount, false);
+                            row.appendChild(cell);
+                        }
+                        table.appendChild(row);
+                    }
+                    break;
+                case 2:
+                    for (var i = 0; i < mediumBoardSett; i++) {
+                        var row = document.createElement("tr");
+                        for (var j = 0; j < mediumBoardSett; j++) {
+                            var cell = document.createElement("td");
+                            cell.setAttribute("class", "boardCells");
+                            cell.style.backgroundColor = setGraphics(i, j);
+                            cell.addEventListener("click", addFailCount, false);
+                            row.appendChild(cell);
+                        }
+                        table.appendChild(row);
+                    }
+                    break;
+                case 3:
+                   for (var i = 0; i < hardBoardSett; i++) {
+                        var row = document.createElement("tr");
+                        for (var j = 0; j < hardBoardSett; j++) {
+                            var cell = document.createElement("td");
+                            cell.setAttribute("class", "boardCells");
+                            cell.style.backgroundColor = setGraphics(i, j);
+                            cell.addEventListener("click", addFailCount, false);
+                            row.appendChild(cell);
+                        }
+                        table.appendChild(row);
+                    }
+                    break;
+                default:
+            }
+        }
+        function setGraphics(i,j) {
+            switch (parseInt(choices[1])) {
+                case 2:
+                        return "lightblue";
+                    break;
+                case 3:
+                        if (!(i % 2) && !(j % 2))
+                            return "lightblue";
+                        if (i % 2 && j % 2)
+                            return "lightblue";
+                    break;
+                default:
+            }
+        }
+        function play() {
+            btn = document.getElementById("playButton");
+            choices = [];
+            diffOptions = document.getElementsByClassName("DiffOpt");
+            grapOptions = document.getElementsByClassName("grapOpt");
+            for (var i = 0; i < diffOptions.length; i++)
+                if (diffOptions[i].checked)
+                    choices[0] = diffOptions[i].value;
+            for (var i = 0; i < grapOptions.length; i++)
+                if (grapOptions[i].checked)
+                    choices[1] = grapOptions[i].value;
+            if (choices[0] != undefined) {
+                if (choices[1] != undefined) {
+                    btn.disabled = true;
+                    setBoard();
+                    go();
+                }
+                else {
+                    alert("Please choose graphics settings!");
+                }
+            }
+            else {
+                if (choices[1] != undefined) {
+                    alert("Please choose difficulty settings!");
+                }
+                else {
+                    alert("Please choose difficulty and graphics settings!");
+                }
+            }
+        }
+        function go() {
+            hit = 0;
+            cells = document.getElementsByClassName("boardCells");
+            var moleWaitTime = Math.floor(Math.random() * 500) + 1000;
+            var loopMoleAgain = Math.floor(Math.random() * 750) + 250;
+            var place;
+            var img = document.createElement("img");
+            img.src = "img/mole.png";
+            img.setAttribute("id", "molePic");
+            img.style.margin = "auto";
+            img.style.display = "block";
+            setImgDim(img);
+            setCellDim();
+            img.onclick = function () {
+                hitCount(place);
+            }
+            stopInterval = setInterval(function () {
+                place = Math.floor(Math.random() * determineLength(cells.length));
+                img.src = "img/mole.png";
+                img.style.pointerEvents = 'visible';
+                cells[place].appendChild(img);
+                stopTime = setTimeout(function () {
+                    cells[place].removeChild(img);
+                    cells[place].addEventListener("click", addFailCount, false);
+                    loopMoleAgain = Math.floor(Math.random() * 750) + 250;
+                    if (hit == 0)
+                        failCounter.innerHTML++;
+                    if (parseInt(failCounter.innerHTML) == 3) {
+                        clearInterval(stopInterval);
+                        clearTimeout(stopTime);
+                        gameOver();
+                    }
+                    hit = 0;
+                }, moleWaitTime);
+                moleWaitTime = Math.floor(Math.random() * 500) + 1000;
+            }, loopMoleAgain + moleWaitTime);
+        }
+        function setCellDim() {
+            switch (parseInt(choices[0])) {
+                case 1:
+                    for (var i = 0; i < cells.length; i++) {
+                        cells[i].style.width = "100%";
+                        cells[i].style.height = "30%";
+                    }
+                    break;
+                case 2:
+                    for (var i = 0; i < cells.length; i++) {
+                        cells[i].style.width = "100%";
+                        cells[i].style.height = "20%";
+                    }
+                    break;
+                default:
+                    for (var i = 0; i < cells.length; i++) {
+                        cells[i].style.width = "100%";
+                        cells[i].style.height = "10%";
+                    }
+                    break;
+            }
+        }
+        function setImgDim(img) {
+            switch (parseInt(choices[0])) {
+                case 1:
+                    img.style.width = "100%";
+                    img.style.height = "100%";
+                    break;
+                case 2:
+                    img.style.width = "100%";
+                    img.style.height = "75%";
+                    break;
+                default:
+                    img.style.width = "100%";
+                    img.style.height = "35%";
+                    break;
+            }
+        }
+        function determineLength(num) {
+            switch (num) {
+                case 9:
+                    return 8;
+                    break;
+                case 25:
+                    return 24;
+                    break;
+                default:
+                    return 99;
+                    break;
+            }
+        }
+        function hitCount(place) {
+            var img = document.getElementById("molePic");
+            hitCounter.innerHTML++;
+            img.src = "img/moleDead.png";
+            img.style.pointerEvents = 'none';
+            hit = 1;
+            cells[place].removeEventListener("click", addFailCount, false);
+        }
+        function addFailCount() {
+            var failCounter = document.getElementById("failCounter");
+            failCounter.innerHTML++;
+            if (parseInt(failCounter.innerHTML) == 3) {
+                clearInterval(stopInterval);
+                clearTimeout(stopTime);
+                gameOver();
+            }
+        }
+        function gameOver() {
+            alert("Game Over!");
+            failCounter.innerHTML = 0;
+            hitCounter.innerHTML = 0;
+            btn.disabled = false;
+            table.innerHTML = "";
+            board.innerHTML = "";
+            diffOptions[choices[0] - 1].checked = false;
+            grapOptions[choices[1] - 1].checked = false;
+        }
+    </script>
+    <style>
+        #boardGame{
+            table-layout:fixed;
+        }
+        #menu{
+            float:left;
+            width:20%;
+            height:100%;
+        }
+        #playButton{
+            width:40%;
+            height:auto;
+        }
+        .boardCells{
+            border:1px solid black;
+        }
+        #boardContainer{
+            float:right;
+            width:80%;
+            height:100%;
+        }
+        html,body {
+            height:100%;
+            margin:0;
+        }
+        #gameLogo{
+            width:100%;
+            height:auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu">
+        <img id="gameLogo" src="img/gameLogo.png" />
+        <h4>Please select difficulty:</h4>
+            <input type="radio" name="difficulty" value="1" class="DiffOpt"/> easy
+        <br />
+            <input type="radio" name="difficulty" value="2" class="DiffOpt"/> medium
+        <br />
+            <input type="radio" name="difficulty" value="3" class="DiffOpt"/> hard
+        <h4>Please select graphics:</h4>
+            <input type="radio" name="graphics" value="1" class="grapOpt"/> none
+        <br />
+            <input type="radio" name="graphics" value="2" class="grapOpt"/> basic
+        <br />
+            <input type="radio" name="graphics" value="3" class="grapOpt"/> fancy
+        <br />
+            <input type="image" onclick="play()" id="playButton" src="img/playButton.png" />
+        <br /><br />
+        Score: <span id="hitCounter">0</span><br />
+        Strikes: <span id="failCounter">0</span>
+    </div>
+</body>
+</html>
